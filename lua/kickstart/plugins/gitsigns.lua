@@ -16,21 +16,13 @@ return {
         end
 
         -- Navigation
-        map('n', ']c', function()
-          if vim.wo.diff then
-            vim.cmd.normal { ']c', bang = true }
-          else
-            gitsigns.nav_hunk 'next'
-          end
-        end, { desc = 'Jump to next git [c]hange' })
+        -- make sure forward function comes first
+        local ts_repeat_move = require 'nvim-treesitter.textobjects.repeatable_move'
+        local next_hunk_repeat, prev_hunk_repeat = ts_repeat_move.make_repeatable_move_pair(gitsigns.next_hunk, gitsigns.prev_hunk)
+        -- -- Or, use `make_repeatable_move` or `set_last_move` functions for more control. See the code for instructions.
 
-        map('n', '[c', function()
-          if vim.wo.diff then
-            vim.cmd.normal { '[c', bang = true }
-          else
-            gitsigns.nav_hunk 'prev'
-          end
-        end, { desc = 'Jump to previous git [c]hange' })
+        map({ 'n', 'x', 'o' }, ']h', next_hunk_repeat, { desc = 'Jump to next git c[h]ange' })
+        map({ 'n', 'x', 'o' }, '[h', prev_hunk_repeat, { desc = 'Jump to previous git c[h]ange' })
 
         -- Actions
         -- visual mode
