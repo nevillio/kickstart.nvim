@@ -712,13 +712,33 @@ require('lazy').setup({
         local enabled_filetypes = {
           -- lua = true,
           -- python = true,
+          javascript = true,
+          typescript = true,
+          javascriptreact = true,
+          typescriptreact = true,
+          css = true,
+          html = true,
         }
+
+        local dirs = {}
+        local bufname = vim.api.nvim_buf_get_name(bufnr)
+        local function check_dir()
+          for _, dir in ipairs(dirs) do
+            if bufname:match(dir) then return true end
+          end
+          return false
+        end
+
+        --Disable with a global or buffer-local variable
+        -- Disable autoformat for files in a certain path
+        if check_dir() or vim.g.disable_autoformat or vim.b[bufnr].disable_autoformat then return false end
         if enabled_filetypes[vim.bo[bufnr].filetype] then
           return { timeout_ms = 500 }
         else
           return nil
         end
       end,
+
       default_format_opts = {
         lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
       },
@@ -726,10 +746,24 @@ require('lazy').setup({
       formatters_by_ft = {
         -- rust = { 'rustfmt' },
         -- Conform can also run multiple formatters sequentially
-        -- python = { "isort", "black" },
         --
         -- You can use 'stop_after_first' to run the first available formatter from the list
-        -- javascript = { "prettierd", "prettier", stop_after_first = true },
+        javascript = { 'prettierd', 'prettier', stop_after_first = true },
+        typescript = { 'prettierd', 'prettier', stop_after_first = true },
+        javascriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        typescriptreact = { 'prettierd', 'prettier', stop_after_first = true },
+        svelte = { 'prettierd', 'prettier', stop_after_first = true },
+        css = { 'prettierd', 'prettier', stop_after_first = true },
+        html = { 'prettierd', 'prettier', stop_after_first = true },
+        json = { 'prettierd', 'prettier', stop_after_first = true },
+        yaml = { 'prettierd', 'prettier', stop_after_first = true },
+        markdown = { 'prettierd', 'prettier', stop_after_first = true },
+        graphql = { 'prettierd', 'prettier', stop_after_first = true },
+        liquid = { 'prettierd', 'prettier', stop_after_first = true },
+        python = { 'isort', 'black' },
+        java = { 'clang-format' },
+        bash = { 'beautysh' },
+        xml = { 'xmlformatter' },
       },
     },
   },
@@ -1011,5 +1045,23 @@ require('lazy').setup({
   },
 })
 
+vim.api.nvim_create_user_command('FormatDisable', function(args)
+  if args.bang then
+    -- FormatDisable! will disable formatting just for this buffer
+    vim.b.disable_autoformat = true
+  else
+    vim.g.disable_autoformat = true
+  end
+end, {
+  desc = 'Disable autoformat-on-save',
+  bang = true,
+})
+
+vim.api.nvim_create_user_command('FormatEnable', function()
+  vim.b.disable_autoformat = false
+  vim.g.disable_autoformat = false
+end, {
+  desc = 'Re-enable autoformat-on-save',
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
