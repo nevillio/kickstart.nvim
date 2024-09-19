@@ -385,16 +385,36 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      local actions = require 'telescope.actions'
+      local trouble_telescope = require 'trouble.sources.telescope'
+
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
-        -- pickers = {}
+        defaults = {
+          layout_config = {
+            horizontal = {
+              preview_cutoff = 90,
+              preview_width = 0.45,
+              width = 0.85,
+            },
+          },
+          path_display = { 'smart' },
+          mappings = {
+            i = {
+              ['<c-enter>'] = 'to_fuzzy_refine',
+              ['<C-j>'] = actions.cycle_history_prev,
+              ['<C-k>'] = actions.cycle_history_next,
+              ['<C-t>'] = trouble_telescope.open,
+            },
+          },
+          cache_picker = {
+            num_pickers = 3,
+            limit_entries = 100,
+          },
+        },
+        pickers = {},
         extensions = {
           ['ui-select'] = {
             require('telescope.themes').get_dropdown(),
@@ -416,6 +436,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>sg', builtin.live_grep, { desc = '[S]earch by [G]rep' })
       vim.keymap.set('n', '<leader>sd', builtin.diagnostics, { desc = '[S]earch [D]iagnostics' })
       vim.keymap.set('n', '<leader>sr', builtin.resume, { desc = '[S]earch [R]esume' })
+      vim.keymap.set('n', '<leader>sp', builtin.pickers, { desc = '[S]earch [P]ickers' })
       vim.keymap.set('n', '<leader>s.', builtin.oldfiles, { desc = '[S]earch Recent Files ("." for repeat)' })
       vim.keymap.set('n', '<leader><leader>', builtin.buffers, { desc = '[ ] Find existing buffers' })
       vim.keymap.set('n', '<leader>st', '<cmd>TodoTelescope<cr>', { desc = '[S]earch [T]odos' })
@@ -439,9 +460,31 @@ require('lazy').setup({
       end, { desc = '[S]earch [/] in Open Files' })
 
       -- Shortcut for searching your Neovim configuration files
+      vim.keymap.set('n', '<leader>sc', function()
+        local config_directories = {
+          '~/.config/nvim',
+          '~/.config/kitty/',
+          '~/.config/sway/',
+          '~/.config/wofi/',
+          '~/.config/waybar/',
+          '~/.config/lazygit/',
+          '~/.config/onemw/',
+        }
+        builtin.find_files {
+          prompt_title = 'Search config files',
+          results_title = 'Config Files Result',
+          search_dirs = config_directories,
+        }
+      end, { desc = '[S]earch [C]onfig files' })
       vim.keymap.set('n', '<leader>sn', function()
-        builtin.find_files { cwd = vim.fn.stdpath 'config' }
-      end, { desc = '[S]earch [N]eovim files' })
+        local notes_directories = {
+          '~/Documents/notes',
+        }
+        builtin.live_grep {
+          prompt_title = ' Grep Notes"',
+          search_dirs = notes_directories,
+        }
+      end, { desc = '[S]earch [N]otes' })
     end,
   },
 
@@ -526,7 +569,7 @@ require('lazy').setup({
           map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
 
           -- Find references for the word under your cursor.
-          map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+          map('grr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
 
           -- Jump to the implementation of the word under your cursor.
           --  Useful when your language has ways of declaring types without an actual implementation.
