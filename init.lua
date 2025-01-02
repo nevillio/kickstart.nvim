@@ -173,6 +173,15 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<M-j>', '<cmd>:cnext<CR>', { desc = 'Jump to next diagnostic' })
+vim.keymap.set('n', '<M-k>', '<cmd>:cprevious<CR>', { desc = 'Jump to previous diagnostic' })
+
+-- Jump to context
+vim.keymap.set('n', '<M-c>', function()
+  require('treesitter-context').go_to_context(vim.v.count1)
+end, { desc = 'Jump to [C]ontext', silent = true })
+--
+--
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
