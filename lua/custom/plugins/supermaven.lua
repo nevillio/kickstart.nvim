@@ -25,5 +25,6 @@ return {
         end
       end,
     }
+    vim.keymap.set('n', '<leader>ts', '<cmd>SupermavenToggle<CR>', { desc = '[T]oggle [S]upermaven' })
   end,
 }
