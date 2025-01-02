@@ -113,12 +113,22 @@ vim.o.wrap = false
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
+-- Remap [jk] to <Esc>
+vim.keymap.set('i', 'jk', '<Esc>', { desc = 'Escape in insert mode' })
+
 -- Clear highlights on search when pressing <Esc> in normal mode
 --  See `:help hlsearch`
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<M-j>', '<cmd>cnext<CR>', { desc = 'Jump to next diagnostic' })
+vim.keymap.set('n', '<M-k>', '<cmd>cprevious<CR>', { desc = 'Jump to previous diagnostic' })
+
+-- Jump to context
+vim.keymap.set('n', '<M-c>', function() require('treesitter-context').go_to_context(vim.v.count1) end, { desc = 'Jump to [C]ontext', silent = true })
+--
+--
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
@@ -134,10 +144,10 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- NOTE: Some terminals have colliding keymaps or are not able to send distinct keycodes
--- vim.keymap.set("n", "<C-S-h>", "<C-w>H", { desc = "Move window to the left" })
--- vim.keymap.set("n", "<C-S-l>", "<C-w>L", { desc = "Move window to the right" })
--- vim.keymap.set("n", "<C-S-j>", "<C-w>J", { desc = "Move window to the lower" })
--- vim.keymap.set("n", "<C-S-k>", "<C-w>K", { desc = "Move window to the upper" })
+vim.keymap.set('n', '<C-S-h>', '<C-w>H', { desc = 'Move window to the left' })
+vim.keymap.set('n', '<C-S-l>', '<C-w>L', { desc = 'Move window to the right' })
+vim.keymap.set('n', '<C-S-j>', '<C-w>J', { desc = 'Move window to the lower' })
+vim.keymap.set('n', '<C-S-k>', '<C-w>K', { desc = 'Move window to the upper' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -314,6 +324,7 @@ require('lazy').setup({
         { '<leader>x', group = 'Trouble' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
         { 'gr', group = 'LSP Actions', mode = { 'n' } },
+        { '<esc>', hidden = true, mode = 't' },
       },
     },
   },
