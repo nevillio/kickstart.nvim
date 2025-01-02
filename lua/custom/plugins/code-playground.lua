@@ -5,6 +5,6 @@ return {
     require('code-playground').setup()
   end,
   keys = {
-    { '<leader>cp', ':Code<space>', desc = 'Run code playground with any language' },
+    { '<leader>cp', '<cmd>Code<space>', desc = 'Run code playground with any language' },
   },
 }
