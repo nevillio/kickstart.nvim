@@ -894,8 +894,8 @@ require('lazy').setup({
           {
             'rafamadriz/friendly-snippets',
             config = function()
-              local luasnip = require 'luasnip'
-              luasnip.filetype_extend('typescriptreact', { 'html' })
+              -- local luasnip = require 'luasnip'
+              -- luasnip.filetype_extend('typescriptreact', { 'html' })
               require('luasnip.loaders.from_vscode').lazy_load()
             end,
           },
