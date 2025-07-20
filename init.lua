@@ -623,6 +623,10 @@ require('lazy').setup({
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
           if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight, event.buf) then
+            local bufname = vim.api.nvim_buf_get_name(event.buf)
+            if bufname:match '/lgi' then
+              return
+            end
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -819,7 +823,7 @@ require('lazy').setup({
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
         local disable_filetypes = { c = true, cpp = true }
-        local dirs = {}
+        local dirs = { '/lgi' }
         local bufname = vim.api.nvim_buf_get_name(bufnr)
         local function check_dir()
           for _, dir in ipairs(dirs) do
