@@ -14,11 +14,18 @@ return {
   -- NOTE: And you can specify dependencies as well
   dependencies = {
     -- Creates a beautiful debugger UI
-    'rcarriga/nvim-dap-ui',
+    {
+      'igorlfs/nvim-dap-view',
+      ---@module 'dapview'
+      ---@type dapview.Config
+      opts = {
+        winbar = {
+          default_section = 'repl',
+        },
+        auto_toggle = true,
+      },
+    },
     'theHamsta/nvim-dap-virtual-text',
-
-    -- Required dependency for nvim-dap-ui
-    'nvim-neotest/nvim-nio',
 
     {
       'LiadOz/nvim-dap-repl-highlights',
@@ -51,7 +58,10 @@ return {
     { '<Leader>db', "<CMD>lua require('dap').toggle_breakpoint()<CR>", desc = 'Toggle Breakpoint' },
     { '<Leader>dt', "<CMD>lua require('dap').terminate()<CR>", desc = 'Terminate' },
     { '<Leader>dl', "<CMD>lua require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", desc = 'Add log point' },
-    -- {'<Leader>dh', '<CMD>lua require('dap.ui.widgets').hover()<CR>', desc = 'Hover'},
+    { '<Leader>du', "<CMD>lua require('dap-view').open()<CR>", desc = 'Open UI' },
+    { '<Leader>dc', "<CMD>lua require('dap-view').close()<CR>", desc = 'Close UI' },
+    { '<Leader>dw', "<CMD>lua require('dap-view').add_expr(expr)", desc = 'Add Watch Expression' },
+
     {
       '<leader>dB',
       function()
@@ -114,12 +124,9 @@ return {
       end,
       desc = 'Debug: Edit Breakpoint',
     },
-    -- Toggle to see last session result. Without this, you can't see session output in case of unhandled exception.
-    { '<F7>', function() require('dapui').toggle() end, desc = 'Debug: See last session result.' },
   },
   config = function()
     local dap = require 'dap'
-    local dapui = require 'dapui'
     local present_virtual_text, dap_vt = pcall(require, 'nvim-dap-virtual-text')
 
     require('mason-nvim-dap').setup {
@@ -158,30 +165,6 @@ return {
       all_frames = true, -- show virtual text for all stack frames not only current. Only works for debugpy on my machine.
       virt_lines = false, -- show virtual lines instead of virtual text (will flicker!)
       virt_text_win_col = nil, -- position the virtual text at a fixed window column (starting from the first text column) ,
-    }
-
-    -- Dap UI setup
-    -- For more information, see |:help nvim-dap-ui|
-    ---@diagnostic disable-next-line: missing-fields
-    dapui.setup {
-      -- Set icons to characters that are more likely to work in every terminal.
-      --    Feel free to remove or use ones that you like more! :)
-      --    Don't feel like these are good choices.
-      icons = { expanded = '▾', collapsed = '▸', current_frame = '*' },
-      ---@diagnostic disable-next-line: missing-fields
-      controls = {
-        icons = {
-          pause = '⏸',
-          play = '▶',
-          step_into = '⏎',
-          step_over = '⏭',
-          step_out = '⏮',
-          step_back = 'b',
-          run_last = '▶▶',
-          terminate = '⏹',
-          disconnect = '⏏',
-        },
-      },
     }
 
     -- Change breakpoint icons
