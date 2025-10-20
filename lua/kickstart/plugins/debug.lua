@@ -29,13 +29,16 @@ return {
   },
   keys = {
     -- Basic debugging keymaps, feel free to change to your liking!
-    { '<F5>', function() require('dap').continue() end, desc = 'Debug: Start/Continue' },
-    { '<F1>', function() require('dap').step_into() end, desc = 'Debug: Step Into' },
-    { '<F2>', function() require('dap').step_over() end, desc = 'Debug: Step Over' },
-    { '<F3>', function() require('dap').step_out() end, desc = 'Debug: Step Out' },
-    { '<leader>b', function() require('dap').toggle_breakpoint() end, desc = 'Debug: Toggle Breakpoint' },
+    { '<Leader>da', "<CMD>lua require('dap').continue()<CR>", desc = 'Continue' },
+    { '<Leader>di', "<CMD>lua require('dap').step_into()<CR>", desc = 'Step Into' },
+    { '<Leader>dO', "<CMD>lua require('dap').step_out()<CR>", desc = 'Step Out' },
+    { '<Leader>do', "<CMD>lua require('dap').step_over()<CR>", desc = 'Step Over' },
+    { '<Leader>db', "<CMD>lua require('dap').toggle_breakpoint()<CR>", desc = 'Toggle Breakpoint' },
+    { '<Leader>dt', "<CMD>lua require('dap').terminate()<CR>", desc = 'Terminate' },
+    { '<Leader>dl', "<CMD>lua require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", desc = 'Add log point' },
+    -- {'<Leader>dh', '<CMD>lua require('dap.ui.widgets').hover()<CR>', desc = 'Hover'},
     {
-      '<leader>B',
+      '<leader>dB',
       function()
         local dap = require 'dap'
 
