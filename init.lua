@@ -1052,5 +1052,82 @@ vim.api.nvim_create_user_command('FormatEnable', function()
 end, {
   desc = 'Re-enable autoformat-on-save',
 })
+
+local ls = require 'luasnip'
+local s = ls.snippet
+local sn = ls.snippet_node
+local t = ls.text_node
+local i = ls.insert_node
+local r = ls.restore_node
+local c = ls.choice_node
+local d = ls.dynamic_node
+
+ls.add_snippets('javascript', {
+  s('jsd', {
+    t '/**',
+    t { '', ' * ' },
+    i(1, 'Description'),
+    t { '', ' * @param {' },
+    i(2, 'type'),
+    t '} ',
+    i(3, 'paramName'),
+    t ' - ',
+    i(4, 'description'),
+    t { '', ' * @returns {' },
+    i(5, 'type'),
+    t '} ',
+    i(6, 'description'),
+    t { '', ' */' },
+    i(0),
+  }),
+})
+
+local function jsdoc(args)
+  local pstring = vim.trim(args[1][1])
+
+  local nodes = {
+    t { '/**', ' * ' },
+    r(1, 'desc', i(1, 'A short description')),
+    t { '', '' },
+  }
+
+  if #pstring > 0 then vim.list_extend(nodes, { t { ' *', '' } }) end
+
+  local insert = 2
+  for arg in string.gmatch(pstring, '%w+') do
+    local inode = r(insert, 'arg ' .. arg, i(1, 'any'))
+    local desc_node = r(insert + 1, 'desc ' .. arg, i(1, 'description'))
+    vim.list_extend(nodes, { t { ' * @param {' }, inode, t { '} ' .. arg .. ' - ' }, desc_node, t { '', '' } })
+    insert = insert + 2
+  end
+
+  vim.list_extend(nodes, {
+    t { ' * @returns {' },
+    r(insert, 'returns', i(1, 'void')),
+    t { '} ', '' },
+  })
+  vim.list_extend(nodes, { t { ' */' } })
+
+  local snip = sn(nil, nodes)
+  return snip
+end
+
+ls.add_snippets('javascript', {
+  s('jf', {
+    d(4, jsdoc, 3),
+    t { '', '' },
+    c(1, {
+      t { 'function ' },
+      t { '' },
+    }),
+    i(2, 'name'),
+    t '(',
+    i(3, 'params'),
+    t ')',
+    t { ' {' },
+    i(0),
+    t { '}' },
+  }),
+})
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
