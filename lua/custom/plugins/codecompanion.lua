@@ -3,6 +3,10 @@ return {
   dependencies = {
     'nvim-lua/plenary.nvim',
     'nvim-treesitter/nvim-treesitter',
+    {
+      'zbirenbaum/copilot.lua',
+      opts = {},
+    },
   },
   keys = {
     { '<leader>cc', '<cmd>CodeCompanionChat Toggle<CR>', desc = '[T]oggle [A]i chat', mode = { 'n', 'v' } },
@@ -84,7 +88,10 @@ return {
       },
       strategies = {
         chat = {
-          adapter = 'gemini',
+          adapter = {
+            name = 'copilot',
+            model = 'claude-sonnet-4.5',
+          },
           slash_commands = {
             ['file'] = {
               callback = 'strategies.chat.slash_commands.file',
@@ -97,10 +104,16 @@ return {
           },
         },
         inline = {
-          adapter = 'gemini',
+          adapter = {
+            name = 'copilot',
+            model = 'gpt-5-mini',
+          },
         },
         cmd = {
-          adapter = 'gemini',
+          adapter = {
+            name = 'copilot',
+            model = 'gpt-5-mini',
+          },
         },
       },
       display = {
