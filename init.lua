@@ -447,6 +447,16 @@ require('lazy').setup({
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      local actions = require 'telescope.actions'
+      local transform_mod = require 'telescope.actions.mt'
+
+      local trouble = require 'trouble'
+      local trouble_telescope = require 'trouble.sources.telescope'
+
+      local custom_actions = transform_mod.transform_mod {
+        open_trouble_qflist = function(prompt_bufnr) trouble.toggle 'quickfix' end,
+      }
+
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
@@ -461,6 +471,11 @@ require('lazy').setup({
           },
           path_display = { 'smart' },
           mappings = {
+            i = {
+              ['<c-enter>'] = actions.to_fuzzy_refine,
+              ['<C-t>'] = trouble_telescope.open,
+              ['<C-q>'] = actions.send_selected_to_qflist + custom_actions.open_trouble_qflist,
+            },
           },
           cache_picker = {
             num_pickers = 3,
