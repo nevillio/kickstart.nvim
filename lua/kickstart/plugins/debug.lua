@@ -248,6 +248,51 @@ return {
         },
         {
           type = 'pwa-node',
+          request = 'attach',
+          name = 'Attach to STB Node js',
+          address = function()
+            local stb_ip = ''
+            local filepath = vim.fn.expand '~/.config/onemw/config'
+            local file = io.open(filepath, 'r')
+
+            if not file then
+              error('Could not open file' .. filepath)
+            end
+
+            for line in file:lines() do
+              if line:match '^%s*$' or line:match '^%s*#' then
+                goto continue
+              end
+              local value = line:match '^%s*STB_IP=(.+)%s*$'
+              if value then
+                stb_ip = value
+                break
+              end
+              -- Remove quotes with value = value:match('^"(.*)"$') or value
+              ::continue::
+            end
+
+            file:close()
+            return stb_ip
+          end,
+          port = 9229,
+          localRoot = vim.fn.getcwd() .. '/src',
+          remoteRoot = '/usr/share/lgioui/app',
+          sourceMaps = true,
+          restart = true,
+          repl_lang = 'javascript',
+          skipFiles = {
+            'module.js',
+            'fs.js',
+            'next_tick.js',
+            'node_modules/**/*',
+            'Request.js',
+            'Cache.js',
+          },
+          timeout = 5000,
+        },
+        {
+          type = 'pwa-node',
           request = 'launch',
           name = 'Run mocha',
           program = vim.fn.getcwd() .. '/node_modules/mocha/bin/_mocha',
