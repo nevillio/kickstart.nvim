@@ -9,14 +9,19 @@ return {
 
           lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
           include_surrounding_whitespace = function(args)
-            if args.query_string == '@function.outer' then
-              return false
-            end
-            return true
+            local exclude = {
+              ['@function.outer'] = true,
+              ['@conditional.outer'] = true,
+              ['@loop.outer'] = true,
+              ['@class.outer'] = true,
+            }
+            return not exclude[args.query_string]
           end,
           selection_modes = {
             ['@parameter.outer'] = 'v', -- charwise
             ['@function.outer'] = 'V', -- linewise
+            ['@conditional.outer'] = 'V', -- linewise
+            ['@loop.outer'] = 'V', -- linewise
             ['@class.outer'] = '<c-v>', -- blockwise
           },
           keymaps = {
