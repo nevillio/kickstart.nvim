@@ -105,7 +105,7 @@ vim.opt.swapfile = false
 vim.o.confirm = true
 
 -- Disable line wrapping
-vim.o.wrap = false
+vim.o.wrap = true
 
 -- Highlight max chars per line
 -- vim.o.colorcolumn = '120'
