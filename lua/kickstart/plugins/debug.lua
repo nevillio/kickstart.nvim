@@ -60,7 +60,13 @@ return {
     { '<Leader>dl', "<CMD>lua require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", desc = 'Add log point' },
     { '<Leader>du', "<CMD>lua require('dap-view').open()<CR>", desc = 'Open UI' },
     { '<Leader>dc', "<CMD>lua require('dap-view').close()<CR>", desc = 'Close UI' },
-    { '<Leader>dw', "<CMD>lua require('dap-view').add_expr(expr)", desc = 'Add Watch Expression' },
+    { '<Leader>dw', "<CMD>lua require('dap-view').add_expr(expr)<CR>", desc = 'Add Watch Expression' },
+    { '<Leader>dW', "<CMD>lua require('dap-view').jump_to_view('watches')<CR>", desc = '[D]ap jump to [W]atches' },
+    { '<Leader>dP', "<CMD>lua require('dap-view').jump_to_view('breakpoints')<CR>", desc = '[D]ap jump to break [P]oints' },
+    { '<Leader>dR', "<CMD>lua require('dap-view').jump_to_view('repl')<CR>", desc = '[D]ap jump to [R]epl' },
+    { '<Leader>dT', "<CMD>lua require('dap-view').jump_to_view('threads')<CR>", desc = '[D]ap jump to [T]hreads' },
+    { '<Leader>dS', "<CMD>lua require('dap-view').jump_to_view('scopes')<CR>", desc = '[D]ap jump to [S]copes' },
+    { '<Leader>dE', "<CMD>lua require('dap-view').jump_to_view('exceptions')<CR>", desc = '[D]ap jump to [E]xceptions' },
 
     {
       '<leader>dB',
@@ -179,10 +185,6 @@ return {
       vim.fn.sign_define(tp, { text = icon, texthl = hl, numhl = hl })
     end
 
-    dap.listeners.after.event_initialized['dapui_config'] = dapui.open
-    dap.listeners.before.event_terminated['dapui_config'] = dapui.close
-    dap.listeners.before.event_exited['dapui_config'] = dapui.close
-
     --Enable virtual text
     vim.g.dap_virtual_text = true
 
@@ -203,10 +205,73 @@ return {
       'vue',
       'svelte',
     }
+
+    -- Map K to hover during debugging
+    local api = vim.api
+    local keymap_restore = {}
+
+    local function save_and_replace_keymaps()
+      for _, buf in pairs(api.nvim_list_bufs()) do
+        -- Only process valid, loaded buffers
+        if not api.nvim_buf_is_valid(buf) or not api.nvim_buf_is_loaded(buf) then
+          goto continue
+        end
+
+        -- Check if buffer's filetype matches our extensions
+        local ft = api.nvim_buf_get_option(buf, 'filetype')
+        local is_target_ft = false
+        for _, ext in ipairs(exts) do
+          if ft == ext then
+            is_target_ft = true
+            break
+          end
+        end
+
+        if not is_target_ft then
+          goto continue
+        end
+
+        -- Save existing K mapping for this buffer
+        local keymaps = api.nvim_buf_get_keymap(buf, 'n')
+        for _, keymap in pairs(keymaps) do
+          if keymap.lhs == 'K' then
+            keymap_restore[buf] = keymap
+            api.nvim_buf_del_keymap(buf, 'n', 'K')
+            break
+          end
+        end
+
+        ::continue::
+      end
+
+      -- Set debug mapping globally
+      api.nvim_set_keymap('n', 'K', '<Cmd>lua require("dap.ui.widgets").hover()<CR>', { silent = true })
+    end
+
+    local function restore_keymaps()
+      for buf, keymap in pairs(keymap_restore) do
+        if api.nvim_buf_is_valid(buf) and api.nvim_buf_is_loaded(buf) then
+          if keymap.rhs then
+            api.nvim_buf_set_keymap(buf, keymap.mode, keymap.lhs, keymap.rhs, { silent = true })
+          elseif keymap.callback then
+            vim.keymap.set(keymap.mode, keymap.lhs, keymap.callback, { buffer = buf, silent = true })
+          end
+        end
+      end
+      keymap_restore = {}
+    end
+
+    dap.listeners.after['event_stopped']['hover_keymap'] = save_and_replace_keymaps
+
+    dap.listeners.before.event_continued['hover_keymap'] = restore_keymaps
+
+    dap.listeners.before.event_terminated['hover_keymap'] = restore_keymaps
+
+    -- ╭──────────────────────────────────────────────────────────╮
     -- ╭──────────────────────────────────────────────────────────╮
     -- │ Adapters                                                 │
     -- ╰──────────────────────────────────────────────────────────╯
-    require('dap').adapters['pwa-node'] = {
+    dap.adapters['pwa-node'] = {
       type = 'server',
       host = 'localhost',
       port = '${port}',
@@ -216,7 +281,7 @@ return {
       },
     }
 
-    require('dap').adapters['pwa-chrome'] = {
+    dap.adapters['pwa-chrome'] = {
       type = 'server',
       host = 'localhost',
       port = '${port}',
@@ -297,8 +362,9 @@ return {
           name = 'Run mocha',
           program = vim.fn.getcwd() .. '/node_modules/mocha/bin/_mocha',
           stopOnEntry = false,
-          args = { '-r', './test/setup.js', '--no-timeouts', '--', '${file}' },
+          args = function() return { '-r', './test/setup.js', '--no-timeouts', '--colors', '--', vim.api.nvim_buf_get_name(0) } end,
           cwd = vim.fn.getcwd(),
+          protocol = 'inspector',
           repl_lang = 'javascript',
           console = 'integratedTerminal',
           internalConsoleOptions = 'neverOpen',
