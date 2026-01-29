@@ -57,7 +57,7 @@ return {
     { '<Leader>do', "<CMD>lua require('dap').step_over()<CR>", desc = 'Step Over' },
     { '<Leader>db', "<CMD>lua require('dap').toggle_breakpoint()<CR>", desc = 'Toggle Breakpoint' },
     { '<Leader>dt', "<CMD>lua require('dap').terminate()<CR>", desc = 'Terminate' },
-    { '<Leader>dl', "<CMD>lua require('dap').set_breakpoint(nil, nil, vim.fn.input('Log point message: '))<CR>", desc = 'Add log point' },
+    { '<Leader>dl', "<CMD>lua require('osv').launch({port=8086})<CR>", desc = 'Launch lua debugging' },
     { '<Leader>du', "<CMD>lua require('dap-view').open()<CR>", desc = 'Open UI' },
     { '<Leader>dc', "<CMD>lua require('dap-view').close()<CR>", desc = 'Close UI' },
     { '<Leader>dw', "<CMD>lua require('dap-view').add_expr(expr)<CR>", desc = 'Add Watch Expression' },
@@ -291,6 +291,8 @@ return {
       },
     }
 
+    dap.adapters.nlua = function(callback, config) callback { type = 'server', host = config.host or '127.0.0.1', port = config.port or 8086 } end
+
     -- ╭──────────────────────────────────────────────────────────╮
     -- │ Configurations                                           │
     -- ╰──────────────────────────────────────────────────────────╯
@@ -418,6 +420,15 @@ return {
             '${workspaceFolder}/*',
             '!**/node_modules/**',
           },
+        },
+      }
+
+      -- Configure the Lua debug configuration
+      dap.configurations.lua = {
+        {
+          type = 'nlua',
+          request = 'attach',
+          name = 'Attach to running neovim instance',
         },
       }
     end
