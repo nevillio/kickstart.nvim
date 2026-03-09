@@ -100,6 +100,9 @@ vim.o.scrolloff = 10
 
 -- turn off swapfile
 vim.opt.swapfile = false
+vim.opt.undofile = true
+
+vim.o.winborder = 'rounded'
 
 -- if performing an operation that would fail due to unsaved changes in the buffer (like `:q`),
 -- instead raise a dialog asking if you wish to save the current file(s)
