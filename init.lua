@@ -713,6 +713,9 @@ do
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
     -- ts_ls = {},
+    vtsls = {},
+    biome = {},
+    basedpyright = {},
 
     stylua = {}, -- Used to format Lua code
 
@@ -788,14 +791,28 @@ end
 do
   -- [[ Formatting ]]
   vim.pack.add { gh 'stevearc/conform.nvim' }
+
+  local ts_like_fts = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' }
+  local ts_like_formatter = { 'biome-check', 'prettierd', stop_after_first = true }
+
+  local formatters_by_ft = { python = { 'isort', 'black' } }
+  for _, ft in ipairs(ts_like_fts) do
+    formatters_by_ft[ft] = ts_like_formatter
+  end
+
   require('conform').setup {
     notify_on_error = false,
     format_on_save = function(bufnr)
       -- You can specify filetypes to autoformat on save here:
       local enabled_filetypes = {
-        -- lua = true,
-        -- python = true,
+        lua = true,
+        python = true,
       }
+
+      for _, ft in ipairs(ts_like_fts) do
+        enabled_filetypes[ft] = true
+      end
+
       if enabled_filetypes[vim.bo[bufnr].filetype] then
         return { timeout_ms = 500 }
       else
@@ -806,14 +823,7 @@ do
       lsp_format = 'fallback', -- Use external formatters if configured below, otherwise use LSP formatting. Set to `false` to disable LSP formatting entirely.
     },
     -- You can also specify external formatters in here.
-    formatters_by_ft = {
-      -- rust = { 'rustfmt' },
-      -- Conform can also run multiple formatters sequentially
-      -- python = { "isort", "black" },
-      --
-      -- You can use 'stop_after_first' to run the first available formatter from the list
-      -- javascript = { "prettierd", "prettier", stop_after_first = true },
-    },
+    formatters_by_ft = formatters_by_ft,
   }
 
   vim.keymap.set({ 'n', 'v' }, '<leader>f', function() require('conform').format { async = true } end, { desc = '[F]ormat buffer' })
