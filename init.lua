@@ -181,7 +181,6 @@ do
   -- Set to biome defaults
   vim.o.shiftwidth = 2
   vim.o.tabstop = 2
-
 end
 
 -- ============================================================
@@ -730,6 +729,16 @@ do
       --
       -- When you move your cursor, the highlights will be cleared (the second autocommand).
       local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+      -- vtsls: add missing imports and organize imports keymaps
+      if client and client.name == 'vtsls' then
+        map(
+          '<leader>ci',
+          function() vim.lsp.buf.code_action { context = { only = { 'source.addMissingImports.ts' } }, apply = true } end,
+          'Add Missing Imports'
+        )
+        map('<leader>co', function() vim.lsp.buf.code_action { context = { only = { 'source.organizeImports.ts' } }, apply = true } end, '[O]rganize [I]mports')
+      end
       if client and client:supports_method('textDocument/documentHighlight', event.buf) then
         local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
         vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -778,6 +787,20 @@ do
     --
     -- But for many setups, the LSP (`rust_analyzer`) will work just fine
     -- rust_analyzer = {},
+    --
+    -- Some languages (like typescript) have entire language plugins that can be useful:
+    --    https://github.com/pmizio/typescript-tools.nvim
+    --
+    -- But for many setups, the LSP (`ts_ls`) will work just fine
+    -- ts_ls = {},
+    vtsls = {
+      on_init = function(client) client.server_capabilities.completionProvider = nil end,
+    },
+    basedpyright = {
+      on_init = function(client) client.server_capabilities.completionProvider = nil end,
+    },
+    bashls = {},
+    emmet_language_server = {},
 
     stylua = {}, -- Used to format Lua code
 
@@ -857,7 +880,7 @@ do
   -- [[ Formatting ]]
   vim.pack.add { gh 'stevearc/conform.nvim' }
 
-  local ts_like_fts = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' }
+  local ts_like_fts = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact', 'json' }
   local ts_like_formatter = { 'biome-check', 'prettierd', stop_after_first = true }
 
   local formatters_by_ft = { python = { 'isort', 'black' } }
