@@ -690,6 +690,16 @@ do
       --
       -- When you move your cursor, the highlights will be cleared (the second autocommand).
       local client = vim.lsp.get_client_by_id(event.data.client_id)
+
+      -- vtsls: add missing imports and organize imports keymaps
+      if client and client.name == 'vtsls' then
+        map(
+          '<leader>ci',
+          function() vim.lsp.buf.code_action { context = { only = { 'source.addMissingImports.ts' } }, apply = true } end,
+          'Add Missing Imports'
+        )
+        map('<leader>co', function() vim.lsp.buf.code_action { context = { only = { 'source.organizeImports.ts' } }, apply = true } end, '[O]rganize [I]mports')
+      end
       if client and client:supports_method('textDocument/documentHighlight', event.buf) then
         local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
         vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
@@ -738,7 +748,9 @@ do
     --
     -- But for many setups, the LSP (`ts_ls`) will work just fine
     -- ts_ls = {},
-    vtsls = {},
+    vtsls = {
+      on_init = function(client) client.server_capabilities.completionProvider = nil end,
+    },
     biome = {},
     basedpyright = {},
 
@@ -899,12 +911,6 @@ do
       --
       -- See `:help blink-cmp-config-keymap` for defining your own keymap
       preset = 'default',
-
-      ['<C-space>'] = {
-        function() require('blink.cmp').show { providers = { 'lsp' } } end,
-        'show_documentation',
-        'hide_documentation',
-      },
     },
 
     appearance = {
@@ -920,7 +926,7 @@ do
     },
 
     sources = {
-      default = { 'path', 'snippets' },
+      default = { 'path', 'snippets', 'lsp' },
     },
 
     snippets = { preset = 'luasnip' },
