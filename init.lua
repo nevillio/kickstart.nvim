@@ -941,6 +941,39 @@ do
   vim.pack.add { gh 'rafamadriz/friendly-snippets' }
   require('luasnip.loaders.from_vscode').lazy_load()
 
+  local ls = require 'luasnip'
+  local s = ls.snippet
+  local i = ls.insert_node
+  local fmt = require('luasnip.extras.fmt').fmt
+
+  ls.add_snippets('typescriptreact', {
+    s(
+      'divc',
+      fmt([[<div className="{}">{}</div>]], {
+        i(1, 'className'),
+        i(0),
+      })
+    ),
+  })
+
+  ls.add_snippets('typescriptreact', {
+    s(
+      'divm',
+      fmt(
+        [[
+      <div className="{}">
+        {}
+      </div>]],
+        {
+          i(1, 'className'),
+          i(0),
+        }
+      )
+    ),
+  })
+
+  ls.add_snippets('typescriptreact', s('divs', fmt([[<div className="{}"{}</div>]], { i(1, 'className'), i(0) })))
+
   -- [[ Autocomplete Engine ]]
   vim.pack.add { { src = gh 'saghen/blink.cmp', version = vim.version.range '1.*' } }
   require('blink.cmp').setup {
