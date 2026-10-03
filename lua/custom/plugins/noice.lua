@@ -1,7 +1,7 @@
+vim.pack.add { 'https://github.com/folke/noice.nvim', 'MunifTanjim/nui.nvim' }
 vim.api.nvim_create_autocmd('UIEnter', {
   once = true,
   callback = function()
-    vim.pack.add { 'https://github.com/folke/noice.nvim', 'MunifTanjim/nui.nvim' }
     require('noice').setup {
       lsp = {
         -- override markdown rendering so that **cmp** and other plugins use **Treesitter**
