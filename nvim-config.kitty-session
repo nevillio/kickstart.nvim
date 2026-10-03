@@ -1,0 +1,6 @@
+layout stack
+
+cd ~/.config/nvim
+
+launch --title "Edit nvim config" /usr/bin/nvim init.lua
+launch --title "Build with opencode" /usr/bin/opencode
