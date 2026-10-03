@@ -496,6 +496,11 @@ do
   ---@diagnostic disable-next-line: duplicate-set-field
   statusline.section_location = function() return '%2l:%-2v' end
 
+  require('mini.sessions').setup()
+
+  vim.keymap.set('n', '<leader>ws', function() MiniSessions.write(vim.fn.input 'Session name: ') end, { desc = '[W]orkspace [S]ave session' })
+  vim.keymap.set('n', '<leader>wr', MiniSessions.select, { desc = '[W]orkspace [R]estore session' })
+
   -- ... and there is more!
   --  Check out: https://github.com/nvim-mini/mini.nvim
 end
